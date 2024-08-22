@@ -11,6 +11,22 @@ export class NiceService {
 
   constructor(private configService: ConfigService) {}
 
+  async findSchool(keyword: string) {
+    const url = this.configService.get<string>("NICE_API_URL") + '/schoolInfo';
+    const param = [];
+
+    param['KEY'] = this.configService.get<string>("NICE_API_KEY"); // 인증키
+    param['Type'] = 'json'; // 호출 문서 형식
+    param['pIndex'] = '1'; // 페이지 위치
+    param['pSize'] = '100'; // 페이지 당 신청 숫자
+    param['SCHUL_NM'] = keyword;
+
+    const { data } = await RestApi.get(url, param);
+    const result = data.schoolInfo[1].row;
+
+    return result;
+  }
+
   async findMeal() {
     const url = this.configService.get<string>("NICE_API_URL") + '/mealServiceDietInfo';
     const param = [];

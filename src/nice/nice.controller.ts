@@ -6,8 +6,16 @@ export class NiceController {
 
   constructor(private niceService: NiceService) {}
 
+  @Get('/school')
+  async findSchool(@Query('keyword') keyword: string) {
+    return await this.niceService.findSchool(keyword);
+  }
+
   @Get('/meal')
-  async findMeal() {
+  async findMeal(
+    @Query('areaCode') areaCode: string,
+    @Query('schoolCode') schoolCode: string,
+  ) {
     return await this.niceService.findMeal();
   }
 
