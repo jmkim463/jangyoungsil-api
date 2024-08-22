@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { TimetableModule } from './timetable/timetable.module';
+import { NiceModule } from './nice/nice.module';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TimetableModule
+    NiceModule,
+    AuthModule
   ],
   controllers: [AppController],
 })
