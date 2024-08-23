@@ -27,36 +27,37 @@ export class NiceService {
     return result;
   }
 
-  async findMeal() {
+  async findMeal(areaCode: string, schoolCode: string, date: string) {
     const url = this.configService.get<string>("NICE_API_URL") + '/mealServiceDietInfo';
     const param = [];
-
     param['KEY'] = this.configService.get<string>("NICE_API_KEY"); // 인증키
     param['Type'] = 'json'; // 호출 문서 형식
     param['pIndex'] = '1'; // 페이지 위치
     param['pSize'] = '100'; // 페이지 당 신청 숫자
-    param['ATPT_OFCDC_SC_CODE'] = "D10"; // 지역 코드
-    param['SD_SCHUL_CODE'] = "7240259"; // 학교 코드
-
-    const today = new Date();
-    const day = today.getDay();
-
-    const start = new Date(today);
-    start.setDate(today.getDate() - (day - 1));
-
-    const end = new Date(today);
-    end.setDate(start.getDate() + 4);
-
-    param['MLSV_FROM_YMD'] = this.formatDate(start);
-    param['MLSV_TO_YMD'] = this.formatDate(end);
-
-    console.log(end);
+    param['ATPT_OFCDC_SC_CODE'] = areaCode; // 지역 코드
+    param['SD_SCHUL_CODE'] = schoolCode; // 학교 코드
+    param['MLSV_YMD'] = date; // 급식일자 ( YYYYMMDD )
 
     const { data } = await RestApi.get(url, param);
+    const result = [];
+
+    if (!data.mealServiceDietInfo) {
+      return result;
+    }
 
     const meal = data.mealServiceDietInfo[1].row;
 
-    return meal;
+    meal.forEach((item, idx) => {
+      result.push({
+        scheduleIndex: item.MMEAL_SC_CODE, // 식사 시간 코드 (1, 2, 3)
+        scheduleNm: item.MMEAL_SC_NM, // 식사 시간 이름 ( 조식, 중식, 석식 )
+        dishNm: item.DDISH_NM.replaceAll('<br/>', '\n'), // 식사 내용
+        calorie: item.CAL_INFO, // 칼로리 정보
+        nutrient: item.NTR_INFO // 영양 정보
+      });
+    });
+
+    return result;
   }
 
 
